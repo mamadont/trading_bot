@@ -65,6 +65,5 @@ class TradingBot:
             RS = gain_ewm / loss_ewm
             RSI = 100 - 100 / (1 + RS)
 
-            stock._rsi = RSI
-            print(f"{stock._ticker_symbol}: {stock._rsi}")
+            stock._rsi = RSI.tail(1)[-1]
 
