@@ -6,20 +6,23 @@ import pandas as pd
 
 class TradingBot:
     def __init__(self, tickers, captial):
-        self._tickers = tickers
+        # self._tickers = tickers
         self._watchlist = []
         self._current_trades = []
         self._capital = captial
 
+        for ticker in tickers:
+            self._watchlist.append(Stock(ticker))
+            
         print("Trading bot initialized...")
 
-    @property
-    def tickers(self):
-        return self.tickers
+    # @property
+    # def tickers(self):
+    #     return self.tickers
 
-    @tickers.setter
-    def tickers(self, tickers):
-        self.tickers = tickers
+    # @tickers.setter
+    # def tickers(self, tickers):
+    #     self.tickers = tickers
 
     @property
     def watchlist(self):
@@ -44,10 +47,10 @@ class TradingBot:
     def watchlist(self, captial):
         self.captial = captial
 
-    def download_data(self):
-        for stock in self._watchlist:
-            df = yf.download(stock._ticker_symbol, period="1d", interval="5m")
-            stock._price_action = df
+    # def download_data(self):
+    #     for stock in self._watchlist:
+    #         df = yf.download(stock._ticker_symbol, period="1d", interval="5m")
+    #         stock._price_action = df
 
     def run_strategy(self):
         Strategy = ta.Strategy(
@@ -64,8 +67,9 @@ class TradingBot:
 
         df = pd.DataFrame()
 
-        for stock in self._tickers:            
-            df = df.ta.ticker(stock, period="1d", interval="30m")
+        for stock in self._watchlist:            
+            df = df.ta.ticker(stock.ticker_symbol, period="1d", interval="30m")
             df.ta.strategy(Strategy)
+            print(df)
             
         print('Data downloaded...')

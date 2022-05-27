@@ -1,11 +1,11 @@
 class Stock:
-    def __init__(self, ticker_symbol, df):
+    def __init__(self, ticker_symbol):
         self._ticker_symbol = ticker_symbol
         self._rsi = 0
         self._vwap = 0
         self._ema = 0
         self._macd = 0
-        self._price_action = df
+        # self._price_action = df
     
     @property
     def ticker_symbol(self):
