@@ -3,26 +3,17 @@ from models.stock import Stock
 import pandas_ta as ta
 import pandas as pd
 
-
 class TradingBot:
     def __init__(self, tickers, captial):
-        # self._tickers = tickers
         self._watchlist = []
         self._current_trades = []
         self._capital = captial
 
         for ticker in tickers:
-            self._watchlist.append(Stock(ticker))
-            
+            df = yf.download(ticker, period="1d", interval="30m")
+            self._watchlist.append(Stock(ticker, df))
+
         print("Trading bot initialized...")
-
-    # @property
-    # def tickers(self):
-    #     return self.tickers
-
-    # @tickers.setter
-    # def tickers(self, tickers):
-    #     self.tickers = tickers
 
     @property
     def watchlist(self):
@@ -47,29 +38,21 @@ class TradingBot:
     def watchlist(self, captial):
         self.captial = captial
 
-    # def download_data(self):
-    #     for stock in self._watchlist:
-    #         df = yf.download(stock._ticker_symbol, period="1d", interval="5m")
-    #         stock._price_action = df
+    def calc_rsi(self, stock: Stock):
+        rsi = ta.rsi(stock._df["Close"])
+        stock._rsi = rsi.tail()[-1]
+    
+    def calc_macd(self, stock: Stock):
+        macd = ta.macd(stock._df["Close"])
+        stock._macd = macd
+    
+    def calc_vwap(self, stock: Stock):
+        vwap = ta.vwap(high= stock._df["High"], low= stock._df["Low"], close= stock._df["Close"], volume= stock._df["Volume"])
+        stock._vwap = vwap
+
+    def calc_ema(self, stock: Stock):
+        ema = ta.ema(stock._df["Close"], length= 5)
+        print(ema)
 
     def run_strategy(self):
-        Strategy = ta.Strategy(
-            name="My Strategy",
-            description="Uses MACD, RSI, VWAP, and EMA",
-            ta=[
-                {"kind": "ema", "length": 9},
-                {"kind": "vwap", "length": 21},
-                {"kind": "rsi"},
-                {"kind": "macd", "fast": 8, "slow": 21,
-                 "col_names": ("MACD", "MACD_H", "MACD_S")}
-            ]
-        )
-
-        df = pd.DataFrame()
-
-        for stock in self._watchlist:            
-            df = df.ta.ticker(stock.ticker_symbol, period="1d", interval="30m")
-            df.ta.strategy(Strategy)
-            print(df)
-            
-        print('Data downloaded...')
+        pass

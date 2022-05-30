@@ -1,6 +1,15 @@
 from models.trading_bot import TradingBot
+import yfinance as yf
+from models.stock import Stock
 
-tickers = ["MSFT", "AAPL", "NVDA", "AMD", "DAL"]
+
+
+
+tickers = ["MSFT", "NVDA"]
 trading_bot = TradingBot(tickers, 1000)
-trading_bot.run_strategy()
+
+df = yf.download("SPY", period="1d", interval="5m")
+stock = Stock("MSFT", df)
+
+trading_bot.calc_ema(stock)
  
