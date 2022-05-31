@@ -48,11 +48,11 @@ class TradingBot:
     
     def calc_vwap(self, stock: Stock):
         vwap = ta.vwap(high= stock._df["High"], low= stock._df["Low"], close= stock._df["Close"], volume= stock._df["Volume"])
-        stock._vwap = vwap
+        stock._vwap = vwap.tail()[-1]
 
     def calc_ema(self, stock: Stock):
         ema = ta.ema(stock._df["Close"], length= 5)
-        print(ema)
+        stock._ema = ema.tail()[-1]
 
     def run_strategy(self):
         pass

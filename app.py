@@ -11,5 +11,5 @@ trading_bot = TradingBot(tickers, 1000)
 df = yf.download("SPY", period="1d", interval="5m")
 stock = Stock("MSFT", df)
 
-trading_bot.calc_ema(stock)
+trading_bot.calc_vwap(stock)
  
