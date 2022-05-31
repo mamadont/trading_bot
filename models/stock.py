@@ -5,6 +5,7 @@ class Stock:
         self._vwap = 0
         self._ema = 0
         self._macd = 0
+        self._macd_slow = 0
         self._df = df
     
     @property
@@ -46,6 +47,14 @@ class Stock:
     @macd.setter
     def macd(self, macd):
         self._macd = macd
+
+    @property
+    def macd_slow(self):
+        return self._macd_slow
+        
+    @macd.setter
+    def macd_slow(self, macd_slow):
+        self._macd_slow = macd_slow
     
     @property
     def price_action(self):

@@ -13,8 +13,6 @@ class TradingBot:
             df = yf.download(ticker, period="1d", interval="30m")
             self._watchlist.append(Stock(ticker, df))
 
-        print("Trading bot initialized...")
-
     @property
     def watchlist(self):
         return self._watchlist
@@ -44,7 +42,8 @@ class TradingBot:
     
     def calc_macd(self, stock: Stock):
         macd = ta.macd(stock._df["Close"])
-        stock._macd = macd
+        stock._macd = macd["MACD_12_26_9"].tail()[-1]
+        stock._macd_slow = macd["MACDs_12_26_9"].tail()[-1]
     
     def calc_vwap(self, stock: Stock):
         vwap = ta.vwap(high= stock._df["High"], low= stock._df["Low"], close= stock._df["Close"], volume= stock._df["Volume"])
@@ -53,6 +52,39 @@ class TradingBot:
     def calc_ema(self, stock: Stock):
         ema = ta.ema(stock._df["Close"], length= 5)
         stock._ema = ema.tail()[-1]
+    
+    def calc_technicals(self):
+        for stock in self._watchlist:
+            self.calc_rsi(stock)
+            self.calc_vwap(stock)
+            self.calc_ema(stock)
+            self.calc_macd(stock)
 
     def run_strategy(self):
+        self.calc_technicals()
+
+        for stock in self._watchlist:
+            if self.isBullish(stock):
+                print(f"Bullish trade for: {stock._ticker_symbol}")
+            elif self.isBearish(stock):
+                print(f"Bearish trade for: {stock._ticker_symbol}")
+            else:
+                print(f"Not trading {stock._ticker_symbol}")
+    
+    def isBullish(self, stock: Stock):
+        if (stock._macd > stock._macd_slow):
+            if (stock._rsi > 50):
+                if (stock._ema > stock._vwap):
+                    return True
+
+    def isBearish(self, stock: Stock):
+        if (stock._macd < stock._macd_slow):
+            if (stock._rsi < 50):
+                if (stock._ema < stock._vwap):
+                    return True
+
+    def enter_calls():
+        pass
+
+    def enter_puts():
         pass
