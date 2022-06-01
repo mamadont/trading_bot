@@ -52,7 +52,7 @@ class Stock:
     def macd_slow(self):
         return self._macd_slow
         
-    @macd.setter
+    @macd_slow.setter
     def macd_slow(self, macd_slow):
         self._macd_slow = macd_slow
     
