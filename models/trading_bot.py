@@ -2,6 +2,7 @@ import yfinance as yf
 from models.stock import Stock
 from models.strategy import Strategy
 import alpaca_trade_api as tradeapi
+from keys import api_key, secret_key
 
 
 class TradingBot:
@@ -10,6 +11,8 @@ class TradingBot:
         self._current_trades = []
         self._capital = captial
         self.strategy = Strategy()
+        self.api_key = api_key
+        self.secret_key = secret_key
 
         for ticker in tickers:
             df = yf.download(ticker, period="5d", interval= "5m")
@@ -53,10 +56,17 @@ class TradingBot:
                 print(f"Not trading {stock._ticker_symbol}")
 
     def enter_calls(self, stock: Stock):
-        pass
+        BASE_URL = "https://paper-api.alpaca.markets"
+        api = tradeapi.REST(key_id=self.api_key, secret_key=self.secret_key, 
+                    base_url=BASE_URL, api_version='v2')
+        api.submit_order(symbol=stock.ticker_symbol, qty=1, side='buy', type='market', time_in_force='day')
+
 
     def enter_puts(self, stock: Stock):
-        pass
+        BASE_URL = "https://paper-api.alpaca.markets"
+        api = tradeapi.REST(key_id=self.api_key, secret_key=self.secret_key, 
+                    base_url=BASE_URL, api_version='v2')
+        api.submit_order(symbol=stock.ticker_symbol, qty=1, side='sell', type='market', time_in_force='day')
 
     def exit_position():
         pass
