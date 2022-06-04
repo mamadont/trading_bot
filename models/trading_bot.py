@@ -1,7 +1,7 @@
 import yfinance as yf
-import pandas_ta as ta
 from models.stock import Stock
 from models.strategy import Strategy
+import alpaca_trade_api as tradeapi
 
 
 class TradingBot:
