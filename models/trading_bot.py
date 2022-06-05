@@ -48,10 +48,12 @@ class TradingBot:
         for stock in self._watchlist:
             if self.strategy.isBullish(stock):
                 print(f"Bullish trade for: {stock._ticker_symbol}")
-                # buy calls here, make sure you're not already in a trade with the same ticker
+                # TODO: sell any puts 
+                self.enter_calls(stock._ticker_symbol)
             elif self.strategy.isBearish(stock):
                 print(f"Bearish trade for: {stock._ticker_symbol}")
-                # buy puts here, make sure you're not already in a trade with the same ticker
+                # TODO: sell any calls
+                self.enter_puts(stock._ticker_symbol)
             else:
                 print(f"Not trading {stock._ticker_symbol}")
 
@@ -60,7 +62,6 @@ class TradingBot:
         api = tradeapi.REST(key_id=self.api_key, secret_key=self.secret_key, 
                     base_url=BASE_URL, api_version='v2')
         api.submit_order(symbol=stock.ticker_symbol, qty=1, side='buy', type='market', time_in_force='day')
-
 
     def enter_puts(self, stock: Stock):
         BASE_URL = "https://paper-api.alpaca.markets"
