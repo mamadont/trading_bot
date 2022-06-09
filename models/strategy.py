@@ -14,7 +14,7 @@ class Strategy:
         stock._vwap = vwap.tail()[-1]
 
     def calc_ema(self, stock: Stock):
-        ema = ta.ema(stock._df["Close"], length= 5)
+        ema = ta.ema(stock._df["Close"], length= 9)
         stock._ema = ema.tail()[-1]
     
     def calc_macd(self, stock: Stock):
@@ -40,3 +40,4 @@ class Strategy:
             if (stock._rsi < 50):
                 if (stock._ema < stock._vwap):
                     return True
+                    

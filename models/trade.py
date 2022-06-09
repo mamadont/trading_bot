@@ -51,8 +51,4 @@ class Trade:
     @exit_price.setter
     def property(self, exit_price):
         self.exit_price = exit_price
-
-
-    
-
     

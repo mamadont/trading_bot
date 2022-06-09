@@ -84,9 +84,6 @@ class TradingBot:
                 return True
         return False
 
-    def exit_position():
+    def run(self):
+        # while the time is not 4 o'clock run the strategy
         pass
-    
-    def monitor_trades():
-        pass
-    
