@@ -1,3 +1,4 @@
+from models.trade import Trade
 class Stock:
     def __init__(self, ticker_symbol, df):
         self._ticker_symbol = ticker_symbol
@@ -7,6 +8,7 @@ class Stock:
         self._macd = 0
         self._macd_slow = 0
         self._df = df
+        self._current_trade = Trade("n/a", 0, 0)
     
     @property
     def ticker_symbol(self):
@@ -63,3 +65,11 @@ class Stock:
     @price_action.setter
     def price_action(self, price_action):
         self._price_action = price_action
+
+    @property
+    def current_trade(self):
+        return self._current_trade
+
+    @current_trade.setter
+    def current_trade(self, trade):
+        self._current_trade = trade

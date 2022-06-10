@@ -1,23 +1,18 @@
-from turtle import position
 import yfinance as yf
 from models.stock import Stock
 from models.strategy import Strategy
-import alpaca_trade_api as tradeapi
 from keys import api_key, secret_key
 from models.trade import Trade
 import time
 
 class TradingBot:
-    def __init__(self, tickers, captial):
+    def __init__(self, tickers):
         self._watchlist = []
         self._current_trades = []
-        self._capital = captial
         self.strategy = Strategy()
         self.api_key = api_key
         self.secret_key = secret_key
-        self.api = tradeapi.REST(key_id=self.api_key, secret_key=self.secret_key, 
-                    base_url="https://paper-api.alpaca.markets", api_version='v2')
-
+    
         for ticker in tickers:
             df = yf.download(ticker, period="5d", interval= "5m")
             stock = Stock(ticker, df)
@@ -35,54 +30,86 @@ class TradingBot:
     def current_trades(self):
         return self._current_trades
 
-    def add_trade(self, trade):
-        self._current_trades.append(trade)
-
-    @property
-    def captial(self):
-        return self._captial
-
-    @captial.setter
-    def capital(self, captial):
-        self._captial = captial
+    def update_prices(self):
+        for stock in self._watchlist:
+            stock._df = yf.download(
+                stock._ticker_symbol, 
+                period="5d", 
+                interval= "5m")
 
     def run_strategy(self):
+        self.update_prices()
         self.strategy.calc_technicals(self._watchlist)
 
         for stock in self._watchlist:
+            # check if stock merits calls
             if self.strategy.isBullish(stock):
                 print(f"Bullish trade for: {stock._ticker_symbol}")
 
                 if self.already_in_trade(stock._ticker_symbol):
                     print("But you are already in a call for this ticker")
                 else:
-                    self.enter_calls(stock._ticker_symbol)
-                
+                    self.enter_calls(stock)
+
+            # check if stock merits puts
             elif self.strategy.isBearish(stock):
                 print(f"Bearish trade for: {stock._ticker_symbol}")
 
                 if self.already_in_trade(stock._ticker_symbol):
                     print("But you are already in a put for this ticker")
                 else:
-                    self.enter_puts(stock._ticker_symbol)
+                    self.enter_puts(stock)
             else:
                 print(f"Not trading {stock._ticker_symbol}")
 
+            self.monitor_trades(self._watchlist)
+
     def enter_calls(self, stock: Stock):
-        self.api.submit_order(symbol=stock.ticker_symbol, qty=1, side='buy', type='market', time_in_force='day')
-        position = tradeapi.get_position(stock._ticker_symbol)
-        self._current_trades.append(Trade(position.symbol, "call", position.current_value, time.localtime()))
+        stock._current_trade = Trade("call", stock._df["Close"][-1], time.localtime())
+        print(f"Entry price for call: ", stock._df["Close"][-1])
 
     def enter_puts(self, stock: Stock):
-        self.api.submit_order(symbol=stock.ticker_symbol, qty=1, side='sell', type='market', time_in_force='day')
-        position = tradeapi.get_position(stock._ticker_symbol)
-        self._current_trades.append(Trade(position.symbol, "call", position.current_value, time.localtime()))
+        stock._current_trade = Trade("put", stock._df["Close"][-1], time.localtime())
+        print(f"Entry price for put: ", stock._df["Close"][-1])
 
     def already_in_trade(self, ticker_symbol):
         for trade in self.current_trades:
             if trade.ticker_symbol == ticker_symbol:
                 return True
         return False
+
+    def monitor_trades(self, stocks):            
+        for stock in stocks:
+            self.take_profits(
+                stock._current_trade._type, 
+                stock._current_trade._entry_price, 
+                stock._df["Close"][-1])
+            self.cut_losses(
+                stock._current_trade._type, 
+                stock._current_trade._entry_price, 
+                stock._df["Close"][-1])
+
+    def take_profits(self, type, entry_price, current_price):
+        if type == "calls":
+            profit = (entry_price * 100) / current_price
+            if profit > 0.05:
+                print("Taking profits at: ", current_price)
+        
+        elif type == "puts":
+            profit = (current_price * 100) / entry_price
+            if profit > 0.05:
+                print("Taking profits at: ", current_price)
+
+    def cut_losses(self, type, entry_price, current_price):
+        if type == "calls":
+            profit = (entry_price * 100) / current_price
+            if profit < 0.05:
+                print("Taking profits at: ", current_price)
+        
+        elif type == "puts":
+            profit = (current_price * 100) / entry_price
+            if profit < 0.05:
+                print("Taking profits at: ", current_price)
 
     def run(self):
         # while the time is not 4 o'clock run the strategy
