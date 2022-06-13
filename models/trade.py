@@ -6,6 +6,12 @@ class Trade:
         self._exit_price = 0
         self._profit = 0
 
+        if self._type == "call":
+            print(f"Entry price for call:", self._entry_price)
+        else:
+            print(f"Entry price for put:", self._entry_price)
+
+
     @property
     def type(self):
         return self.type

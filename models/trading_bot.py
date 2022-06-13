@@ -49,7 +49,7 @@ class TradingBot:
                 if self.already_in_trade(stock._ticker_symbol):
                     print("But you are already in a call for this ticker")
                 else:
-                    self.enter_calls(stock)
+                    self.enter_calls("call", stock)
 
             # check if stock merits puts
             elif self.strategy.isBearish(stock):
@@ -58,20 +58,15 @@ class TradingBot:
                 if self.already_in_trade(stock._ticker_symbol):
                     print("But you are already in a put for this ticker")
                 else:
-                    self.enter_puts(stock)
+                    self.enter_puts("put", stock)
             else:
                 print(f"Not trading {stock._ticker_symbol}")
 
             self.monitor_trades(self._watchlist)
 
-    def enter_calls(self, stock: Stock):
-        stock._current_trade = Trade("call", stock._df["Close"][-1], time.localtime())
-        print(f"Entry price for call: ", stock._df["Close"][-1])
+    def enter_trade(self, type, stock: Stock):
+        stock._current_trade = Trade(type, stock._df["Close"][-1], time.localtime())
         
-    def enter_puts(self, stock: Stock):
-        stock._current_trade = Trade("put", stock._df["Close"][-1], time.localtime())
-        print(f"Entry price for put: ", stock._df["Close"][-1])
-
     def already_in_trade(self, ticker_symbol):
         for trade in self.current_trades:
             if trade.ticker_symbol == ticker_symbol:
