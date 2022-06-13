@@ -67,7 +67,7 @@ class TradingBot:
     def enter_calls(self, stock: Stock):
         stock._current_trade = Trade("call", stock._df["Close"][-1], time.localtime())
         print(f"Entry price for call: ", stock._df["Close"][-1])
-
+        
     def enter_puts(self, stock: Stock):
         stock._current_trade = Trade("put", stock._df["Close"][-1], time.localtime())
         print(f"Entry price for put: ", stock._df["Close"][-1])
@@ -80,36 +80,14 @@ class TradingBot:
 
     def monitor_trades(self, stocks):            
         for stock in stocks:
-            self.take_profits(
-                stock._current_trade._type, 
-                stock._current_trade._entry_price, 
-                stock._df["Close"][-1])
-            self.cut_losses(
-                stock._current_trade._type, 
-                stock._current_trade._entry_price, 
-                stock._df["Close"][-1])
+            self.take_profits_or_cut_losses(stock)
 
-    def take_profits(self, type, entry_price, current_price):
-        if type == "calls":
-            profit = (entry_price * 100) / current_price
-            if profit > 0.05:
-                print("Taking profits at: ", current_price)
-        
-        elif type == "puts":
-            profit = (current_price * 100) / entry_price
-            if profit > 0.05:
-                print("Taking profits at: ", current_price)
+    def take_profits_or_cut_losses(self, stock: Stock):
+        if stock._current_trade._type  == "calls":
+            return stock._df["Close"][-1] > stock._current_trade._entry_price
 
-    def cut_losses(self, type, entry_price, current_price):
-        if type == "calls":
-            profit = (entry_price * 100) / current_price
-            if profit < 0.05:
-                print("Taking profits at: ", current_price)
-        
         elif type == "puts":
-            profit = (current_price * 100) / entry_price
-            if profit < 0.05:
-                print("Taking profits at: ", current_price)
+            return stock._df["Close"][-1] < stock._current_trade._entry_price
 
     def run(self):
         # while the time is not 4 o'clock run the strategy
