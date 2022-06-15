@@ -4,6 +4,7 @@ from models.strategy import Strategy
 from keys import api_key, secret_key
 from models.trade import Trade
 import time
+import datetime
 
 class TradingBot:
     def __init__(self, tickers):
@@ -49,7 +50,7 @@ class TradingBot:
                 if self.already_in_trade(stock._ticker_symbol):
                     print("But you are already in a call for this ticker")
                 else:
-                    self.enter_calls("call", stock)
+                    self.enter_trade("call", stock)
 
             # check if stock merits puts
             elif self.strategy.isBearish(stock):
@@ -58,7 +59,7 @@ class TradingBot:
                 if self.already_in_trade(stock._ticker_symbol):
                     print("But you are already in a put for this ticker")
                 else:
-                    self.enter_puts("put", stock)
+                    self.enter_trade("put", stock)
             else:
                 print(f"Not trading {stock._ticker_symbol}")
 
@@ -85,5 +86,10 @@ class TradingBot:
             return stock._df["Close"][-1] < stock._current_trade._entry_price
 
     def run(self):
-        # while the time is not 4 o'clock run the strategy
-        pass
+        closing_bell_string = "04:00:00"
+        closing_bell = datetime.datetime.strptime(closing_bell_string, "%H:%M:%S")
+
+        while(True and datetime.datetime.now() > closing_bell):
+            self.run_strategy()
+            time.sleep(10)
+  
